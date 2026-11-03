@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "SurveyResponse": {
+      "title": "SurveyResponse",
+      "description": "Public survey responses capturing civic feedback and environmental perceptions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "ageGroup": { "type": "string", "enum": ["18-25", "26-35", "36-50", "50+"] },
+        "gender": { "type": "string", "enum": ["Male", "Female", "Non-Binary", "Prefer not to say"] },
+        "location": { "type": "string", "maxLength": 128 },
+        "environmentalAwareness": { "type": "integer" },
+        "publicTransportSatisfaction": { "type": "integer" },
+        "cleanlinessSatisfaction": { "type": "integer" },
+        "airQualitySatisfaction": { "type": "integer" },
+        "overallSatisfaction": { "type": "integer" },
+        "primaryConcern": { "type": "string", "enum": ["Air Quality", "Traffic & Noise", "Waste Management", "Green Spaces", "Public Amenities"] },
+        "suggestions": { "type": "string", "maxLength": 1000 },
+        "isDemo": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "timestamp",
+        "ageGroup",
+        "environmentalAwareness",
+        "publicTransportSatisfaction",
+        "cleanlinessSatisfaction",
+        "airQualitySatisfaction",
+        "overallSatisfaction",
+        "primaryConcern",
+        "suggestions",
+        "isDemo"
+      ]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Designated administrator identity with write and deletion privileges.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 256 },
+        "role": { "type": "string", "enum": ["admin", "superadmin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    }
+  },
+  "firestore": {
+    "/survey_responses/{responseId}": {
+      "schema": "SurveyResponse",
+      "description": "Public survey entries submitted by citizens or seeded for demonstration."
+    },
+    "/admins/{adminId}": {
+      "schema": "AdminUser",
+      "description": "Authorized administrator registry."
+    }
+  }
+}

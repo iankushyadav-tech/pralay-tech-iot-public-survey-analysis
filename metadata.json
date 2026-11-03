@@ -1,0 +1,8 @@
+{
+  "name": "PRALAY TECH - IoT Public Survey Analysis",
+  "description": "IoT-Based Public Survey Response Analysis System with real-time zero-hardware sensor simulation and public opinion data analytics by PRALAY TECH.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

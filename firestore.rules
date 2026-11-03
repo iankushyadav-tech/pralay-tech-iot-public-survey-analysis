@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email in ['singhtiger7171@gmail.com', 'admin@pralaytech.edu']
+      );
+    }
+
+    // Validation for public survey response submission
+    function isValidSurveyResponse(data) {
+      return data.keys().hasAll([
+        'id', 'timestamp', 'ageGroup', 'environmentalAwareness',
+        'publicTransportSatisfaction', 'cleanlinessSatisfaction',
+        'airQualitySatisfaction', 'overallSatisfaction',
+        'primaryConcern', 'suggestions', 'isDemo'
+      ]) &&
+      data.id is string && data.id.size() <= 128 &&
+      data.ageGroup in ['18-25', '26-35', '36-50', '50+'] &&
+      data.primaryConcern in ['Air Quality', 'Traffic & Noise', 'Waste Management', 'Green Spaces', 'Public Amenities'] &&
+      data.environmentalAwareness is int && data.environmentalAwareness >= 1 && data.environmentalAwareness <= 5 &&
+      data.publicTransportSatisfaction is int && data.publicTransportSatisfaction >= 1 && data.publicTransportSatisfaction <= 5 &&
+      data.cleanlinessSatisfaction is int && data.cleanlinessSatisfaction >= 1 && data.cleanlinessSatisfaction <= 5 &&
+      data.airQualitySatisfaction is int && data.airQualitySatisfaction >= 1 && data.airQualitySatisfaction <= 5 &&
+      data.overallSatisfaction is int && data.overallSatisfaction >= 1 && data.overallSatisfaction <= 5 &&
+      data.suggestions is string && data.suggestions.size() <= 1000 &&
+      data.isDemo is bool;
+    }
+
+    // Survey Responses Collection:
+    // - Public read for dashboard aggregation & live synchronization
+    // - Valid public create for citizen submission (no PII)
+    // - Immutable (no updates)
+    // - Only verified admins can delete entries
+    match /survey_responses/{responseId} {
+      allow read: if true;
+      allow create: if isValidId(responseId) && isValidSurveyResponse(request.resource.data);
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Admins Collection:
+    // - Restricted to signed in admins
+    match /admins/{adminId} {
+      allow read: if isSignedIn() && (request.auth.uid == adminId || isAdmin());
+      allow write: if isAdmin();
+    }
+  }
+}
