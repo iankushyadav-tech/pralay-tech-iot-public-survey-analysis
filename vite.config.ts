@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/pralay-tech---iot-public-survey-analysis/',
+    base: '/pralay-tech-iot-public-survey-analysis/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
